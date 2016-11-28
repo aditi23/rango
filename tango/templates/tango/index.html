@@ -1,0 +1,19 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rango</title>
+</head>
+<body>
+<h1>Rango says</h1>
+<div>
+    hey there partner<br>
+    <strong>{{ boldmessage }}</strong>
+    <img src="{% static "/images/rango.jpg" %}">
+</div>
+<div>
+    <a href="/tango/about">About</a><br>
+</div>
+</body>
+</html>
