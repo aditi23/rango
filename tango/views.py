@@ -1,10 +1,14 @@
 from django.http import HttpResponse
 from django.shortcuts import render
+from tango.models import Category
 
 
 def index(request):
-    context_dict = {'message':'This is home page'}
+    category_list = Category.objects.order_by('-likes')[:5]
+    context_dict = {'categories':category_list}
     return render(request,'tango/index.html',context=context_dict)
+    # context_dict = {'message':'This is home page'}
+    # return render(request,'tango/index.html',context=context_dict)
     # return HttpResponse("Hello there <br> <a href ='/tango/about'>About</a> ")
 
 
