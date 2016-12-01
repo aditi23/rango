@@ -7,4 +7,5 @@ urlpatterns = [
     url(r'^about/',views.about,name='about'),
     url(r'^category/(?P<slug>[\w-]+)/$',views.ShowCategoryView.as_view(),name='show_category'),
     url(r'^register/',views.UserRegisterView.as_view(),name='register'),
+    url(r'^login/',views.UserLoginView.as_view(),name='login'),
 ]

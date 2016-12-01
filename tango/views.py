@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect
 from django.views import generic
 from tango.models import Page, Category
-from tango.forms import UserRegisterForm
+from tango.forms import UserRegisterForm,UserLoginForm
 from django.contrib.auth import authenticate, login
 from django.views.generic import FormView
 from django.views.generic import View
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 # def index(request):
@@ -30,7 +31,7 @@ from django.views.generic import View
 #         return context
 
 
-class IndexView(generic.ListView):
+class IndexView(LoginRequiredMixin,generic.ListView):
     template_name = 'tango/index.html'
     context_object_name = 'categories'
     model = Category
@@ -98,11 +99,11 @@ class UserRegisterView(View):
     form_class = UserRegisterForm
     template_name = 'tango/register.html'
 
-    def get(self,request):
+    def get(self, request):
         form = self.form_class(None)
-        return render(request,self.template_name,{'form':form})
+        return render(request, self.template_name, {'form':form})
 
-    def post(self,request):
+    def post(self, request):
         form = self.form_class(request.POST)
 
         if form.is_valid():
@@ -113,16 +114,34 @@ class UserRegisterView(View):
             email = form.cleaned_data['email']
             user.set_password(password)
             user.save()
-
-            user = authenticate(username=username,password=password)
-
+            user = authenticate(username=username, password=password)
             if user is not None:
-
                 if user.is_active:
-                    login(request,user)
+                    login(request, user)
                     return redirect('/tango')
 
         return render(request, self.template_name, {'form': form})
 
+
+class UserLoginView(FormView):
+    form_class = UserLoginForm
+    template_name = 'tango/login.html'
+    success_url = '/tango'
+
+    def form_valid(self, form):
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password']
+
+        user = authenticate(username=username, password=password)
+
+        if user is not None:
+            login(self.request, user)
+            return redirect(self.success_url)
+
+        return render(self.request, self.template_name, {'form': form})
+
+    def form_invalid(self, form):
+        print('invalid')
+        return render(self.request, self.template_name, {'form': form})
 
 
