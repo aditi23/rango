@@ -10,6 +10,7 @@
     {% for field in form %}
      <label>{{ field.label_tag }}</label>   {{ field }}<br>
     {% endfor %}
+    <a href="{% url 'index'%}"></a>
     <input type="submit" value="Login" />
 </form>
 </body>

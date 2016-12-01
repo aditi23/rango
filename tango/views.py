@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect
+from django.http import HttpResponseRedirect
 from django.views import generic
 from tango.models import Page, Category
 from tango.forms import UserRegisterForm,UserLoginForm
-from django.contrib.auth import authenticate, login
-from django.views.generic import FormView
+from django.contrib.auth import authenticate, login, logout
+from django.views.generic import FormView, RedirectView
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -32,6 +33,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 class IndexView(LoginRequiredMixin,generic.ListView):
+    login_url = '/tango/login/'
+    redirect_field_name = 'redirect_to'
     template_name = 'tango/index.html'
     context_object_name = 'categories'
     model = Category
@@ -137,11 +140,22 @@ class UserLoginView(FormView):
         if user is not None:
             login(self.request, user)
             return redirect(self.success_url)
+            # return HttpResponseRedirect(self,'/tango',user)
 
         return render(self.request, self.template_name, {'form': form})
 
     def form_invalid(self, form):
         print('invalid')
         return render(self.request, self.template_name, {'form': form})
+
+
+class LogoutView(RedirectView):
+    url = '/tango/login'
+
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return super(LogoutView, self).get(request,*args,**kwargs)
+
+
 
 

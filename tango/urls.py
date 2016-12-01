@@ -8,4 +8,5 @@ urlpatterns = [
     url(r'^category/(?P<slug>[\w-]+)/$',views.ShowCategoryView.as_view(),name='show_category'),
     url(r'^register/',views.UserRegisterView.as_view(),name='register'),
     url(r'^login/',views.UserLoginView.as_view(),name='login'),
+    url(r'^logout/',views.LogoutView.as_view(),name='logout'),
 ]
