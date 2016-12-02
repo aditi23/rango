@@ -1,5 +1,6 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseRedirect
+from django.core.urlresolvers import reverse
 from django.views import generic
 from tango.models import Page, Category
 from tango.forms import UserRegisterForm,UserLoginForm
@@ -7,29 +8,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.views.generic import FormView, RedirectView
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
-
-
-# def index(request):
-#     category_list = Category.objects.order_by('-likes')[:5]
-#     views = Category.objects.order_by('-views')[:5]
-#     context_dict = {'categories':category_list,'views':views}
-#     return render(request,'tango/index.html',context=context_dict)
-#     # context_dict = {'message':'This is home page'}
-#     # return render(request,'tango/index.html',context=context_dict)
-#     # return HttpResponse("Hello there <br> <a href ='/tango/about'>About</a> ")
-
-
-# class IndexView(generic.ListView):
-#     template_name = 'tango/index.html'
-#     model = Category
-#
-#     def get_context_data(self, **kwargs):
-#         # Call the base implementation first to get a context
-#         context = super(Category, self).get_context_data(**kwargs)
-#         # Add in a QuerySet of all the books
-#         context['categories'] = Category.objects.order_by('-likes')[:5]
-#         context['views'] = Category.objects.order_by('-views')[:5]
-#         return context
+from django.contrib.auth.models import User
 
 
 class IndexView(LoginRequiredMixin,generic.ListView):
@@ -43,12 +22,9 @@ class IndexView(LoginRequiredMixin,generic.ListView):
         context = super(IndexView, self).get_context_data(**kwargs)
         context.update({
             'categories': Category.objects.order_by('-likes')[:5],
-            'views': Category.objects.order_by('-views')[:5],
+            'views': Category.objects.order_by('views')[:5],
         })
         return context
-
-    # def get_queryset(self):
-    #     return Category.objects.order_by('-likes')[:5]
 
 
 class ShowCategoryView(generic.ListView):
@@ -77,25 +53,17 @@ class ShowCategoryView(generic.ListView):
         return context
 
 
-# def show_category(request, category_name_slug):
-#     context_dict = {}
-#
-#     try:
-#         category = Category.objects.get(slug=category_name_slug)
-#         pages = Page.objects.filter(category=category)
-#         context_dict['pages'] = pages
-#         context_dict['category'] = category
-#     except Category.DoesNotExist:
-#         context_dict['pages'] = None
-#         context_dict['category'] = None
-#
-#     return render(request, 'tango/category.html', context=context_dict)
+class ProfileView(generic.DetailView):
+
+    template_name = 'tango/profile.html'
+
+    def get_object(self):
+        return get_object_or_404(User, pk=self.request.session['id'])
 
 
 def about(request):
     context_dict = {'aboutmessage': 'This tutorial has been put together by Aditi'}
     return render(request, 'tango/about.html', context=context_dict)
-    # return HttpResponse("this is about page <br> <a href = '/tango'>Home</a>")
 
 
 class UserRegisterView(View):
@@ -104,7 +72,7 @@ class UserRegisterView(View):
 
     def get(self, request):
         form = self.form_class(None)
-        return render(request, self.template_name, {'form':form})
+        return render(request, self.template_name, {'form': form})
 
     def post(self, request):
         form = self.form_class(request.POST)
@@ -121,7 +89,7 @@ class UserRegisterView(View):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    return redirect('/tango')
+                    return redirect(reverse('index'))
 
         return render(request, self.template_name, {'form': form})
 
@@ -139,9 +107,8 @@ class UserLoginView(FormView):
 
         if user is not None:
             login(self.request, user)
-            return redirect(self.success_url)
-            # return HttpResponseRedirect(self,'/tango',user)
-
+            # return redirect(self.success_url)
+            return redirect(reverse('index'))
         return render(self.request, self.template_name, {'form': form})
 
     def form_invalid(self, form):
@@ -155,7 +122,4 @@ class LogoutView(RedirectView):
     def get(self, request, *args, **kwargs):
         logout(request)
         return super(LogoutView, self).get(request,*args,**kwargs)
-
-
-
 
