@@ -58,7 +58,7 @@ class ProfileView(generic.DetailView):
     template_name = 'tango/profile.html'
 
     def get_object(self):
-        return get_object_or_404(User, pk=self.request.session['id'])
+        return get_object_or_404(User, pk=self.request.user.id)
 
 
 def about(request):
@@ -109,11 +109,13 @@ class UserLoginView(FormView):
             login(self.request, user)
             # return redirect(self.success_url)
             return redirect(reverse('index'))
-        return render(self.request, self.template_name, {'form': form})
+        return self.form_invalid(form)
 
     def form_invalid(self, form):
-        print('invalid')
-        return render(self.request, self.template_name, {'form': form})
+        print(
+            form.errors
+        )
+        return super(UserLoginView,self).form_invalid(form)
 
 
 class LogoutView(RedirectView):

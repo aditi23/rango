@@ -18,6 +18,9 @@
                     <fieldset class="form-group">
                         {{ field.label_tag }}
                         {{ field }}
+                        {% for error in field.errors %}
+                                {{ error }}
+                        {% endfor %}
                     </fieldset>
                 {% endfor %}
                 <input type="submit" value="Register" class="btn btn-primary">

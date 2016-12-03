@@ -11,14 +11,21 @@
     <h3 class="card-title">Login</h3>
     <div class="card-block">
         <div class="col-md-4 col-md-offset-4">
+
             <form method="post" action="">
                 {% csrf_token %}
                 {% for field in form %}
                     <fieldset class="form-group">
                         {{ field.label_tag }}
                         {{ field }}
+                        {% for error in field.errors %}
+                            {{ error }}
+                        {% endfor %}
                     </fieldset>
                 {% endfor %}
+                {% if form.non_field_errors %}
+                   Username or password invalid
+                {% endif %}
                 <input type="submit" value="Login" class="btn btn-primary">
             </form>
         </div>
