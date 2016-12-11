@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.views import generic
 from tango.models import Page, Category, UserProfile
-from tango.forms import UserRegisterForm,UserLoginForm
+from tango.forms import UserRegisterForm,UserLoginForm, UserProfileForm
 from django.contrib.auth import authenticate, login, logout
 from django.views.generic import FormView, RedirectView
 from django.views.generic import View
@@ -88,30 +88,39 @@ def about(request):
 
 class UserRegisterView(View):
     form_class = UserRegisterForm
+    second_form_class = UserProfileForm
     template_name = 'tango/register.html'
 
     def get(self, request):
-        form = self.form_class(None)
-        return render(request, self.template_name, {'form': form})
+        userform = self.form_class(None)
+        profileform = self.second_form_class(None)
+        return render(request, self.template_name, {'userForm': userform,'profileForm':profileform})
 
     def post(self, request):
-        form = self.form_class(request.POST)
+        userform = self.form_class(request.POST)
+        profileform = self.second_form_class(request.POST)
 
-        if form.is_valid():
-            user = form.save(commit=False)
+        if userform.is_valid() and profileform.is_valid():
+            user = userform.save(commit=False)
+            profile = profileform.save(commit=False)
 
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            email = form.cleaned_data['email']
+            username = userform.cleaned_data['username']
+            password = userform.cleaned_data['password']
+            email = userform.cleaned_data['email']
             user.set_password(password)
             user.save()
+
+            profile.user = user
+            interest = profileform.cleaned_data['interest']
+            profile.save()
+
             user = authenticate(username=username, password=password)
             if user is not None:
                 if user.is_active:
                     login(request, user)
                     return redirect(reverse('index'))
 
-        return render(request, self.template_name, {'form': form})
+                return render(request, self.template_name, {'userForm': userform, 'profileForm': profileform})
 
 
 class UserLoginView(FormView):

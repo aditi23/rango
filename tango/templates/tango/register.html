@@ -14,7 +14,16 @@
         <div class="col-md-4 col-md-offset-4">
             <form method="post" action="">
                 {% csrf_token %}
-                {% for field in form %}
+                {% for field in userForm %}
+                    <fieldset class="form-group">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% for error in field.errors %}
+                                {{ error }}
+                        {% endfor %}
+                    </fieldset>
+                {% endfor %}
+                {% for field in profileForm %}
                     <fieldset class="form-group">
                         {{ field.label_tag }}
                         {{ field }}
