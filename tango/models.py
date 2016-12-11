@@ -35,3 +35,6 @@ class Page(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(User)
     interest = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.interest

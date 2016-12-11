@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.views import generic
-from tango.models import Page, Category
+from tango.models import Page, Category, UserProfile
 from tango.forms import UserRegisterForm,UserLoginForm
 from django.contrib.auth import authenticate, login, logout
 from django.views.generic import FormView, RedirectView
@@ -59,6 +59,26 @@ class ProfileView(generic.DetailView):
 
     def get_object(self):
         return get_object_or_404(User, pk=self.request.user.id)
+
+    def get_context_data(self, **kwargs):
+        print('hello the kwargs are')
+        print()
+        try:
+            # print(kwargs['object'].id)
+            context = super(ProfileView, self).get_context_data(**kwargs)
+            # profile = UserProfile.objects.get(kwargs['object'].id)
+
+            profile = self.request.user.userprofile
+
+            context.update({
+                'profileDetails': profile,
+            })
+        except UserProfile.DoesNotExist:
+            context = super(ProfileView, self).get_context_data(**kwargs)
+            context.update({
+                'profileDetails': None,
+            })
+        return context
 
 
 def about(request):
